@@ -1,31 +1,51 @@
+// Configuração do sistema
 const express = require("express");
 const fs = require("fs/promises");
 const app = express();
-const PORT = 3022;
+const PORT = 2600;
 
-// funcao para verificar se o ano informado é bissexto
-function verificarBissexto(ano) {
-  if (ano % 400 === 0) {
-    return "o ano e bissexto";
-  }
-  if (ano % 4 === 0 && ano % 100 !== 0) {
-    return "o ano e bissexto";
-  }
-  return "o ano nao e bissexto";
-}
+app.use(express.json());
 
+app.get("/saudacao/:nome", (req, res) => {
+  try {
+    const { nome } = req.params;
+    const { hora } = req.query;
 
+    // converte pra num inteiro
+    const horaNum = parseInt(hora);
 
-app.get('/ano/:valor', async (req, res) => {
-    try {
-        const { valor } = req.params;
-        const resposta = verificarBissexto(Number(valor));
-       res.send(resposta);
-    } catch (error) {
-        res.status(500).json({ erro: "falha na requisiçao" });
+    // erro se nao for um numero
+    if (isNaN(horaNum)) {
+      throw new Error("hora invalida tente um numero");
     }
+
+    let saudacao;
+    if (horaNum >= 0 && horaNum < 6) {
+      saudacao = `boa madrugada, ${nome}!`;
+    } else if (horaNum >= 6 && horaNum < 12) {
+      saudacao = `mom dia, ${nome}!`;
+    } else if (horaNum >= 12 && horaNum < 18) {
+      saudacao = `boa tarde, ${nome}!`;
+    } else if (horaNum >= 18 && horaNum <= 23) {
+      saudacao = `boa noite, ${nome}!`;
+    } else {
+  
+      throw new Error("valor inválido!! tente de 0 a23");
+    }
+
+    // sucesso
+    res.status(200).json({ message: saudacao });
+  } catch (error) {
+    // erro
+    res.status(400).json({ message: error.message });
+  }
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor ativo na porta ${PORT}`);
+app.use((req, res) => {
+  res.status(404).json({ message: "Pagina não encontrada" });
 });
+ 
+app.listen(PORT, () => {
+  console.log(`Servidor Ativo na porta ${PORT}`);
+});
+ 
