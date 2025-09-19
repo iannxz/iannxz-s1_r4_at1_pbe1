@@ -1,58 +1,43 @@
+// Configuração do sistema
 const express = require("express");
 const fs = require("fs/promises");
 const app = express();
-const port = 3000;
+const PORT = 2600;
 
-app.get("/soma/:n1/:n2", (req, res) => {
-  if (isNaN(req.params.n1) || isNaN(req.params.n2)) {
-    return res.status(400).send("digite um numero valido");
-  } else {
-    const n1 = Number(req.params.n1);
-    const n2 = Number(req.params.n2);
-    const resultado = n1 + n2;
-    res.send(`resultado: ${resultado}`);
-  }
-});
+app.get("/calculadora", (req, res) => {
+  const { operacao, n1, n2 } = req.query;
 
-app.get("/subtracao/:n1/:n2", (req, res) => {
-  if (isNaN(req.params.n1) || isNaN(req.params.n2)) {
-    return res.status(400).send("digite um numero valido");
-  } else {
-    const n1 = Number(req.params.n1);
-    const n2 = Number(req.params.n2);
-    const resultado = n1 - n2;
-    res.send(`resultado: ${resultado}`);
+  if (!operacao || !n1 || !n2) {
+    return res.status(400).json({ error: "parametros insuficientes" });
   }
-});
 
-app.get("/divisao/:n1/:n2", (req, res) => {
-  if (isNaN(req.params.n1) || isNaN(req.params.n2)) {
-    return res.status(400).send("digite um numero valido");
-  } else {
-    const n1 = Number(req.params.n1);
-    const n2 = Number(req.params.n2);
-    const resultado = n1 / n2;
-    res.send(`resultado: ${resultado}`);
+  if (isNaN(n1) || isNaN(n2)) {
+    return res.status(400).json({ error: "n1 e n2 devem ser números" });
   }
-});
 
-app.get("/multiplicacao/:n1/:n2", (req, res) => {
-  if (isNaN(req.params.n1) || isNaN(req.params.n2)) {
-    return res.status(400).send("digite um numero valido");
-  } else {
-    const n1 = Number(req.params.n1);
-    const n2 = Number(req.params.n2);
-    const resultado = n1 * n2;
-    res.send(`resultado: ${resultado}`);
+  let resultado;
+  switch (operacao) {
+    case "soma":
+      resultado = Number(n1) + Number(n2);
+      break;
+    case "subtracao":
+      resultado = Number(n1) - Number(n2);
+      break;
+    case "multiplicacao":
+      resultado = Number(n1) * Number(n2);
+      break;
+    case "divisao":
+      resultado = Number(n1) / Number(n2);
+      break;
   }
+  
+  res.json({ resultado });
 });
 
 app.use((req, res) => {
-  res.status(404).json({
-    message: "pagina nao encontrada",
-  });
+  res.status(404).json({ message: "pagina nao encontrada" });
 });
 
-app.listen(port, () => {
-  console.log(`porta funcionando ${port}`);
+app.listen(PORT, () => {
+  console.log(`Servidor ativo na porta ${PORT}`);
 });
