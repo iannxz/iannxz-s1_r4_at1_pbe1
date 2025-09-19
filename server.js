@@ -1,40 +1,31 @@
 const express = require("express");
+const fs = require("fs/promises");
 const app = express();
-const PORT = 2601;
- 
-app.get("/operacao/:tipo", (req, res) => {
-  const { tipo } = req.params;
-  const { n1, n2 } = req.query;
- 
- 
-  let resultado;
- 
-  switch (tipo) {
-    case "soma":
-      resultado = Number(n1) + Number(n2);
-      break;
- 
-    case "subtracao":
-      resultado = Number(n1) - Number(n2);
-      break;
- 
-    case "multiplicacao":
-      resultado = Number(n1) * Number(n2);
-      break;
- 
-    case "divisao":
-      resultado = Number(n1) / Number(n2);
-      break;
+const PORT = 3022;
+
+// funcao para verificar se o ano informado é bissexto
+function verificarBissexto(ano) {
+  if (ano % 400 === 0) {
+    return "o ano e bissexto";
+  }
+  if (ano % 4 === 0 && ano % 100 !== 0) {
+    return "o ano e bissexto";
+  }
+  return "o ano nao e bissexto";
+}
+
+
+
+app.get('/ano/:valor', async (req, res) => {
+    try {
+        const { valor } = req.params;
+        const resposta = verificarBissexto(Number(valor));
+       res.send(resposta);
+    } catch (error) {
+        res.status(500).json({ erro: "falha na requisiçao" });
     }
- 
- 
-  res.send(`resultado da ${tipo} é ${resultado}`);
 });
- 
-app.use((req, res) => {
-  res.status(404).json({ message: "pagina nao encontrada" });
-});
- 
+
 app.listen(PORT, () => {
-  console.log(`Servidor Ativo na porta ${PORT}`);
+  console.log(`Servidor ativo na porta ${PORT}`);
 });
